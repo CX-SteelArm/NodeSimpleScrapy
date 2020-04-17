@@ -4,23 +4,16 @@ import cheerio from 'cheerio'
 import child_process from 'child_process'
 import path from 'path'
 import fs from 'fs'
-import { MAX_THREADS, DOWN_FILE_DIR_PATH } from './config'
+import { 
+  MAX_THREADS, 
+  DOWN_FILE_DIR_PATH, 
+  REQCONTEXT, 
+  SELECTOR, 
+  LIMITATION, 
+  ENABLE_DEBUG 
+} from './config'
 
-const options: http.RequestOptions = {
-  hostname: 'www.100.com',
-  path: '/article/309301.html',
-  port: 80,
-  headers: {
-    'Cache-Control': 'max-age=0',
-    'User-Agent': "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/78.0.3904.87 Safari/537.36",
-    'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3',
-    'Accept-Encoding': 'gzip, deflate',
-    'Accept-Language': 'zh-CN,zh;q=0.9,en;q=0.8'
-  },
-  timeout: 3000
-}
-
-http.get(options, (res) => {
+http.get(REQCONTEXT as http.RequestOptions, (res) => {
   console.log(`状态码: ${res.statusCode}`)
   console.log(`响应头: ${JSON.stringify(res.headers)}`)
 
@@ -59,20 +52,27 @@ http.get(options, (res) => {
 
 function findImgsInContent (html: string): void {
   let $ = cheerio.load(html)
-  let imgs = $('.content img')
+  let imgs = $(SELECTOR)
   let sources: Array<ImageContext> = []
 
   Object.keys(imgs).forEach(id => {
     let img = imgs[+id]
-    let url = $(img).attr('src')
+    let url = $(img).attr('data-src') || $(img).attr('src')
     if (url) {
       sources.push({ url, id})
     }
   })
 
+  if (LIMITATION > 0) {
+    sources = sources.slice(0, LIMITATION)
+  }
+
   if (sources.length) {
     checkAndCreateDir(DOWN_FILE_DIR_PATH)
-    downAllSources(sources.slice(0,3))
+    if (ENABLE_DEBUG) {
+      console.log('sources: ', sources)
+    }
+    downAllSources(sources)
   }
 }
 
