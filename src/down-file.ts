@@ -1,11 +1,15 @@
 
 import http from 'http'
+import https from 'https'
 import fs from 'fs'
 import path from 'path'
 import { DOWN_FILE_DIR_PATH } from './config'
 
+let useHttps = false
+
 process.on('message', (msg) => {
-  let [ fileUrl, filename ] = msg.toString().split('|')
+  let { fileUrl, filename, https } = msg
+  useHttps = https
   if (fileUrl && filename) {
     getFile(fileUrl)
       .then((data) => saveFile(filename, data))
@@ -26,7 +30,9 @@ function getFile(fileUrl: string, retry: number = 0): Promise<any> {
 
 function httpGetFile (fileUrl: string): Promise<SaveContext> {
   return new Promise((resolve, reject) => {
-    http.get(fileUrl, (res) => {
+    const requestMethod = useHttps ? https.get : http.get
+
+    requestMethod(fileUrl, (res) => {
       let bufs: Array<Buffer> = []
       let fileLength = 0
   
