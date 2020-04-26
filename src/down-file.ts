@@ -3,6 +3,7 @@ import http from 'http'
 import https from 'https'
 import fs from 'fs'
 import path from 'path'
+import { logger } from './reqeust'
 import { DOWN_FILE_DIR_PATH } from './config'
 
 let useHttps = false
@@ -56,6 +57,8 @@ function saveFile (filename: string, data: SaveContext): Promise<void> {
   let savedFilePath = path.join(DOWN_FILE_DIR_PATH, filename)
   let fileData = Buffer.concat(data.bufs, data.fileLength)
   let _resolve: Function
+
+  logger('filename: %s, size: %dbytes', filename, data.fileLength)
   
   fs.writeFile(savedFilePath, fileData, (err) => {
     if (err) {

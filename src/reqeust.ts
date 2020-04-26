@@ -6,17 +6,18 @@ import child_process from 'child_process'
 import path from 'path'
 import fs from 'fs'
 import mime from 'mime'
+import debug from 'debug'
 import { 
   MAX_THREADS, 
   DOWN_FILE_DIR_PATH, 
   REQ_CONTEXT, 
   SELECTOR, 
   LIMITATION, 
-  ENABLE_DEBUG,
   RequestContext
 } from './config'
 
 let useHttps = false
+export const logger = debug('scrapy:application')
 
 export function run (): void {
   const reqContext = getRequestContext(REQ_CONTEXT)
@@ -24,7 +25,7 @@ export function run (): void {
 
   reqMethod(reqContext, (res) => {
     console.log(`状态码: ${res.statusCode}`)
-    console.log(`响应头: ${JSON.stringify(res.headers)}`)
+    logger(`响应头: ${JSON.stringify(res.headers)}`)
   
     const encoding = res.headers['content-encoding'] || ''
     const isChunked = res.headers['transfer-encoding'] === 'chunked'
@@ -77,10 +78,7 @@ function getRequestContext (options: RequestContext): RequestContext {
     context.port = options.port || (useHttps ? 443 : 80)
   }
 
-  if (ENABLE_DEBUG) {
-    console.log(context)
-  }
-
+  logger('request context is %o', context)
   return context
 }
 
@@ -111,9 +109,7 @@ function findImgsInContent (html: string): void {
 
   if (sources.length) {
     checkAndCreateDir(DOWN_FILE_DIR_PATH)
-    if (ENABLE_DEBUG) {
-      console.log('sources: ', sources)
-    }
+    logger('sources: %O', sources)
     downAllSources(sources)
   }
 }

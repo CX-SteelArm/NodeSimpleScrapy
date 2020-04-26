@@ -12,9 +12,11 @@ SPA doesn't works.
 ```sh
 npm install
 npm run start
+
+# with debug messages displayed in console
+npm run debug
 ```
 
 ## 配置/configuration
 
 src/config.ts
-

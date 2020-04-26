@@ -32,6 +32,3 @@ export const LIMITATION: number = 8
 // 图片存储文件夹路径
 // image saving path
 export const DOWN_FILE_DIR_PATH: string = './down'
-
-// 开启debug
-export const ENABLE_DEBUG: boolean = true
