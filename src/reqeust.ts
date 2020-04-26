@@ -5,6 +5,7 @@ import cheerio from 'cheerio'
 import child_process from 'child_process'
 import path from 'path'
 import fs from 'fs'
+import { URL } from 'url'
 import mime from 'mime'
 import debug from 'debug'
 import { 
@@ -63,20 +64,12 @@ export function run (): void {
 
 function getRequestContext (options: RequestContext): RequestContext {
   const context = { ...options }
+  const url = new URL(options.url)
 
-  const mr = options.url.match(/^(https?):\/\/([^\/]+)(\S+)$/)
-  if (mr) {
-    let [ protocol, hostname, path ] = mr.slice(1)
-    
-    if (!/^https?$/.test(protocol)) {
-      throw new Error('只支持http(s)协议的请求')
-    }
-
-    context.hostname = hostname
-    context.path = path
-    useHttps = protocol === 'https'
-    context.port = options.port || (useHttps ? 443 : 80)
-  }
+  context.hostname = url.hostname
+  context.path = url.pathname
+  useHttps = url.protocol.startsWith('https')
+  context.port = url.port
 
   logger('request context is %o', context)
   return context
