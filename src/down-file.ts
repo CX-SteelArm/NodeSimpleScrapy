@@ -3,7 +3,7 @@ import http from 'http'
 import https from 'https'
 import fs from 'fs'
 import path from 'path'
-import { logger } from './reqeust'
+import { logger } from './request'
 import { DOWN_FILE_DIR_PATH } from './config'
 
 let useHttps = false

@@ -1,6 +1,6 @@
-import { RequestOptions } from 'http'
+import { Request } from 'node-fetch'
 
-export type RequestContext = RequestOptions & { url: string }
+export type RequestContext = { [P in keyof Request]?: any }
 
 // 请求上下文
 // request context
